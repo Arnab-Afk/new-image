@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { EvervaultCard } from "@/components/ui/evervault-card";
 
 interface GameModeSelectorProps {
   onStartGame: (mode: "single" | "multiplayer", playerNames: string[]) => void;
@@ -61,51 +62,49 @@ export function GameModeSelector({ onStartGame }: GameModeSelectorProps) {
           Choose game mode
         </h3>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl">
           {/* Single Player */}
-          <div className="group">
-            <button
+          <div className="relative h-60 w-full">
+            <EvervaultCard 
+              text="🎯" 
+              className="h-full w-full cursor-pointer"
+            />
+            <div 
               onClick={() => handleModeSelect("single")}
-              className="w-full bg-gray-900 border border-gray-700 rounded-lg p-8 text-left hover:border-cyan-500 transition-all duration-300 transform hover:scale-105"
+              className="absolute inset-0 flex flex-col justify-center items-center text-center p-6 z-30 cursor-pointer group"
             >
-              <div className="flex items-center mb-4">
-                <div className="w-6 h-6 rounded-full border-2 border-cyan-400 flex items-center justify-center mr-4">
-                  <div className="w-2 h-2 bg-cyan-400 rounded-full"></div>
+              <div className="bg-black/80 backdrop-blur-sm rounded-lg p-6 transform group-hover:scale-105 transition-transform duration-300 border border-white/20">
+                <h4 className="text-xl font-bold text-white mb-2">Single Player</h4>
+                <p className="text-gray-300 text-sm mb-4">
+                  Play solo and chase a perfect score with timed rounds and streak bonuses.
+                </p>
+                <div className="bg-cyan-500 text-white px-4 py-2 rounded-lg font-medium text-sm">
+                  Play Solo
                 </div>
-                <h4 className="text-xl font-bold text-white">Single Player</h4>
               </div>
-              
-              <p className="text-gray-400 mb-6">
-                Play solo and chase a perfect score with timed rounds and streak bonuses.
-              </p>
-              
-              <div className="bg-cyan-500 text-white px-6 py-3 rounded-lg font-medium inline-block">
-                Play Solo
-              </div>
-            </button>
+            </div>
           </div>
 
           {/* Multiplayer */}
-          <div className="group">
-            <button
+          <div className="relative h-60 w-full">
+            <EvervaultCard 
+              text="👥" 
+              className="h-full w-full cursor-pointer"
+            />
+            <div 
               onClick={() => handleModeSelect("multiplayer")}
-              className="w-full bg-gray-900 border border-gray-700 rounded-lg p-8 text-left hover:border-green-500 transition-all duration-300 transform hover:scale-105"
+              className="absolute inset-0 flex flex-col justify-center items-center text-center p-6 z-30 cursor-pointer group"
             >
-              <div className="flex items-center mb-4">
-                <div className="w-6 h-6 rounded-full border-2 border-green-400 flex items-center justify-center mr-4">
-                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+              <div className="bg-black/80 backdrop-blur-sm rounded-lg p-6 transform group-hover:scale-105 transition-transform duration-300 border border-white/20">
+                <h4 className="text-xl font-bold text-white mb-2">Multiplayer</h4>
+                <p className="text-gray-300 text-sm mb-4">
+                  Compete with friends in real-time lobbies. First to crack the prompt wins.
+                </p>
+                <div className="bg-green-500 text-white px-4 py-2 rounded-lg font-medium text-sm">
+                  Host or Join
                 </div>
-                <h4 className="text-xl font-bold text-white">Multiplayer</h4>
               </div>
-              
-              <p className="text-gray-400 mb-6">
-                Compete with friends in real-time lobbies. First to crack the prompt wins.
-              </p>
-              
-              <div className="bg-green-500 text-white px-6 py-3 rounded-lg font-medium inline-block">
-                Host or Join
-              </div>
-            </button>
+            </div>
           </div>
         </div>
 

@@ -223,7 +223,7 @@ export default function GuessThePromptGame() {
       <div className="flex flex-col items-center justify-center min-h-screen p-8">
         {/* Header Section */}
         <div className="text-center mb-12 max-w-4xl">
-          <div className="text-gray-400 text-sm font-medium mb-4 tracking-wider uppercase">
+          <div className="text-gray-400 text-sm font-medium mb-12 tracking-wider uppercase">
             GUESS THE PROMPT
           </div>
           
@@ -235,11 +235,11 @@ export default function GuessThePromptGame() {
           </h1>
           
           <p className="text-lg text-gray-300 max-w-3xl mb-8 leading-relaxed">
-            We show you stunning AI outputs—your job is to reverse-engineer the exact prompt. Clean, fast, and addictive.
+            We show you stunning AI outputs, your job is to reverse-engineer the exact prompt. Clean, fast, and addictive.
           </p>
 
           {/* Example Challenge */}
-          <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-6 mb-8 max-w-2xl mx-auto">
+          {/* <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-6 mb-8 max-w-2xl mx-auto">
             <div className="flex items-center mb-3">
               <div className="w-2 h-2 bg-cyan-400 rounded-full mr-3"></div>
               <span className="text-gray-400 text-sm font-medium">Example challenge</span>
@@ -250,7 +250,7 @@ export default function GuessThePromptGame() {
             <div className="mt-4 text-sm text-green-400">
               Goal: match at least 90% of tokens
             </div>
-          </div>
+          </div> */}
         </div>
         
         <GameModeSelector onStartGame={startGame} />
