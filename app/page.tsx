@@ -7,7 +7,7 @@ export default function Home() {
   return (
     <div className="relative min-h-screen overflow-hidden">
       {/* Hyperspeed Background */}
-      <div className="absolute inset-0 z-0 flex items-center justify-center">
+      <div className="absolute inset-0 z-0">
         <Hyperspeed effectOptions={hyperspeedPresets.one} />
       </div>
 

@@ -1016,6 +1016,16 @@ class App {
     this.renderer.setPixelRatio(window.devicePixelRatio);
 
     this.composer = new EffectComposer(this.renderer);
+    
+    // Style the canvas to fill container and center properly
+    const canvas = this.renderer.domElement;
+    canvas.style.position = 'absolute';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    canvas.style.display = 'block';
+    
     container.appendChild(this.renderer.domElement);
 
     this.camera = new THREE.PerspectiveCamera(
@@ -1345,6 +1355,14 @@ const Hyperspeed: FC<HyperspeedProps> = ({ effectOptions = {} }) => {
       id="lights"
       className="w-full h-full"
       ref={hyperspeed}
+      style={{ 
+        width: '100vw', 
+        height: '100vh',
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        zIndex: 0
+      }}
     ></div>
   );
 };
