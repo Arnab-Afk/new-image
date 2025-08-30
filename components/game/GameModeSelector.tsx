@@ -4,107 +4,80 @@ import { useState } from "react";
 import { EvervaultCard } from "@/components/ui/evervault-card";
 
 interface GameModeSelectorProps {
-  onStartGame: (mode: "single" | "multiplayer", playerNames: string[]) => void;
+  onStartGame: (playerName: string) => void;
 }
 
 export function GameModeSelector({ onStartGame }: GameModeSelectorProps) {
-  const [selectedMode, setSelectedMode] = useState<"single" | "multiplayer" | null>(null);
-  const [playerNames, setPlayerNames] = useState<string[]>([""]);
+  const [playerName, setPlayerName] = useState<string>("");
   const [showPlayerSetup, setShowPlayerSetup] = useState(false);
 
-  const handleModeSelect = (mode: "single" | "multiplayer") => {
-    setSelectedMode(mode);
-    if (mode === "single") {
-      setPlayerNames(["Solo Player"]);
-      setShowPlayerSetup(true);
-    } else {
-      setPlayerNames(["", ""]);
-      setShowPlayerSetup(true);
-    }
-  };
-
-  const addPlayer = () => {
-    if (playerNames.length < 6) {
-      setPlayerNames([...playerNames, ""]);
-    }
-  };
-
-  const removePlayer = (index: number) => {
-    if (playerNames.length > 2 || (selectedMode === "single" && playerNames.length > 1)) {
-      const newNames = playerNames.filter((_, i) => i !== index);
-      setPlayerNames(newNames);
-    }
-  };
-
-  const updatePlayerName = (index: number, name: string) => {
-    const newNames = [...playerNames];
-    newNames[index] = name;
-    setPlayerNames(newNames);
-  };
-
   const canStart = () => {
-    if (selectedMode === "single") {
-      return playerNames[0].trim() !== "";
-    }
-    return playerNames.length >= 2 && playerNames.every(name => name.trim() !== "");
+    return playerName.trim() !== "";
   };
 
   const handleStart = () => {
-    if (canStart() && selectedMode) {
-      onStartGame(selectedMode, playerNames.map(name => name.trim()));
+    if (canStart()) {
+      onStartGame(playerName.trim());
     }
+  };
+
+  const handleGetStarted = () => {
+    setShowPlayerSetup(true);
   };
 
   if (!showPlayerSetup) {
     return (
       <div className="space-y-8">
         <h3 className="text-2xl font-bold text-white text-center mb-8">
-          Choose game mode
+          Ready to test your AI prompt skills?
         </h3>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl">
-          {/* Single Player */}
-          <div className="relative h-60 w-full">
+        <div className="flex justify-center max-w-2xl mx-auto">
+          {/* Single Player Game */}
+          <div className="relative h-60 w-full max-w-md">
             <EvervaultCard 
               text="🎯" 
               className="h-full w-full cursor-pointer"
             />
             <div 
-              onClick={() => handleModeSelect("single")}
+              onClick={handleGetStarted}
               className="absolute inset-0 flex flex-col justify-center items-center text-center p-6 z-30 cursor-pointer group"
             >
               <div className="bg-black/80 backdrop-blur-sm rounded-lg p-6 transform group-hover:scale-105 transition-transform duration-300 border border-white/20">
-                <h4 className="text-xl font-bold text-white mb-2">Single Player</h4>
+                <h4 className="text-xl font-bold text-white mb-2">AI Prompt Guesser</h4>
                 <p className="text-gray-300 text-sm mb-4">
-                  Play solo and chase a perfect score with timed rounds and streak bonuses.
+                  View stunning AI-generated images and guess the exact prompts used to create them.
                 </p>
                 <div className="bg-cyan-500 text-white px-4 py-2 rounded-lg font-medium text-sm">
-                  Play Solo
+                  Start Playing
                 </div>
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Multiplayer */}
-          <div className="relative h-60 w-full">
-            <EvervaultCard 
-              text="👥" 
-              className="h-full w-full cursor-pointer"
-            />
-            <div 
-              onClick={() => handleModeSelect("multiplayer")}
-              className="absolute inset-0 flex flex-col justify-center items-center text-center p-6 z-30 cursor-pointer group"
-            >
-              <div className="bg-black/80 backdrop-blur-sm rounded-lg p-6 transform group-hover:scale-105 transition-transform duration-300 border border-white/20">
-                <h4 className="text-xl font-bold text-white mb-2">Multiplayer</h4>
-                <p className="text-gray-300 text-sm mb-4">
-                  Compete with friends in real-time lobbies. First to crack the prompt wins.
-                </p>
-                <div className="bg-green-500 text-white px-4 py-2 rounded-lg font-medium text-sm">
-                  Host or Join
-                </div>
-              </div>
-            </div>
+        {/* Game Features */}
+        <div className="max-w-4xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="text-center">
+            <div className="text-3xl mb-3">�️</div>
+            <h4 className="text-white font-bold mb-2">AI-Generated Images</h4>
+            <p className="text-gray-400 text-sm">
+              Each image was created using AI with specific prompts
+            </p>
+          </div>
+          <div className="text-center">
+            <div className="text-3xl mb-3">⏱️</div>
+            <h4 className="text-white font-bold mb-2">Timed Challenges</h4>
+            <p className="text-gray-400 text-sm">
+              60 seconds per round to guess the prompt
+            </p>
+          </div>
+          <div className="text-center">
+            <div className="text-3xl mb-3">🏆</div>
+            <h4 className="text-white font-bold mb-2">Score System</h4>
+            <p className="text-gray-400 text-sm">
+              Points based on accuracy and keyword matches
+            </p>
           </div>
         </div>
 
@@ -112,7 +85,7 @@ export function GameModeSelector({ onStartGame }: GameModeSelectorProps) {
         <div className="max-w-4xl mx-auto mt-12">
           <h4 className="text-white font-bold mb-4">Pro tip</h4>
           <p className="text-gray-400">
-            Look for style tokens like camera model, lens, lighting, aspect ratio, or seed numbers. Tiny details matter.
+            Look for style tokens like camera model, lens, lighting, aspect ratio, or artistic style. Every detail in the prompt matters!
           </p>
         </div>
 
@@ -129,53 +102,34 @@ export function GameModeSelector({ onStartGame }: GameModeSelectorProps) {
   return (
     <div className="bg-gray-900 border border-gray-700 rounded-lg p-8 max-w-2xl w-full">
       <h3 className="text-2xl font-bold text-white text-center mb-6">
-        {selectedMode === "single" ? "Player Setup" : "Add Players"}
+        Enter Your Name
       </h3>
 
       <div className="space-y-4 mb-6">
-        {playerNames.map((name, index) => (
-          <div key={index} className="flex items-center space-x-3">
-            <div className="flex-1">
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => updatePlayerName(index, e.target.value)}
-                placeholder={selectedMode === "single" ? "Your name" : `Player ${index + 1} name`}
-                className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-                maxLength={20}
-              />
-            </div>
-            
-            {selectedMode === "multiplayer" && playerNames.length > 2 && (
-              <button
-                onClick={() => removePlayer(index)}
-                className="px-3 py-3 bg-red-900/50 text-red-400 border border-red-800 rounded-lg hover:bg-red-900/70 transition-colors"
-              >
-                ✕
-              </button>
-            )}
+        <div className="flex items-center space-x-3">
+          <div className="flex-1">
+            <input
+              type="text"
+              value={playerName}
+              onChange={(e) => setPlayerName(e.target.value)}
+              placeholder="Your name"
+              className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+              maxLength={20}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter' && canStart()) {
+                  handleStart();
+                }
+              }}
+            />
           </div>
-        ))}
-      </div>
-
-      {selectedMode === "multiplayer" && (
-        <div className="flex justify-center mb-6">
-          <button
-            onClick={addPlayer}
-            disabled={playerNames.length >= 6}
-            className="px-6 py-2 bg-gray-800 text-gray-300 border border-gray-600 rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            + Add Player ({playerNames.length}/6)
-          </button>
         </div>
-      )}
+      </div>
 
       <div className="flex space-x-4">
         <button
           onClick={() => {
             setShowPlayerSetup(false);
-            setSelectedMode(null);
-            setPlayerNames([""]);
+            setPlayerName("");
           }}
           className="flex-1 px-6 py-3 bg-gray-800 text-gray-300 border border-gray-600 rounded-lg hover:bg-gray-700 transition-colors"
         >
@@ -191,11 +145,9 @@ export function GameModeSelector({ onStartGame }: GameModeSelectorProps) {
         </button>
       </div>
 
-      {selectedMode === "multiplayer" && (
-        <p className="text-gray-400 text-sm text-center mt-4">
-          Players will take turns guessing prompts. Each round lasts 60 seconds!
-        </p>
-      )}
+      <p className="text-gray-400 text-sm text-center mt-4">
+        Challenge yourself to guess AI image prompts. Each round lasts 60 seconds!
+      </p>
     </div>
   );
 }

@@ -3,184 +3,144 @@
 import { Player } from "../GuessThePromptGame";
 
 interface GameResultProps {
-  players: Player[];
+  player: Player;
   onRestart: () => void;
 }
 
-export function GameResult({ players, onRestart }: GameResultProps) {
-  // Sort players by score
-  const sortedPlayers = [...players].sort((a, b) => b.score - a.score);
-  const winner = sortedPlayers[0];
-  const isMultiplayer = players.length > 1;
-
-  const getPositionEmoji = (index: number) => {
-    switch (index) {
-      case 0: return "🥇";
-      case 1: return "🥈";
-      case 2: return "🥉";
-      default: return "🏅";
-    }
+export function GameResult({ player, onRestart }: GameResultProps) {
+  const getPerformanceMessage = (score: number) => {
+    if (score >= 400) return "Amazing! You're a prompt master! 🧠";
+    if (score >= 300) return "Great job! You know AI art well! 🎨";
+    if (score >= 200) return "Good work! Keep practicing! 💪";
+    return "Not bad! Try again to improve your score! 🚀";
   };
 
-  const getPositionText = (index: number) => {
-    switch (index) {
-      case 0: return "1st Place";
-      case 1: return "2nd Place";
-      case 2: return "3rd Place";
-      default: return `${index + 1}th Place`;
-    }
+  const getScoreGrade = (score: number) => {
+    if (score >= 400) return { grade: "A+", color: "text-yellow-400", emoji: "🏆" };
+    if (score >= 300) return { grade: "A", color: "text-green-400", emoji: "⭐" };
+    if (score >= 200) return { grade: "B", color: "text-blue-400", emoji: "👍" };
+    if (score >= 100) return { grade: "C", color: "text-orange-400", emoji: "📈" };
+    return { grade: "D", color: "text-red-400", emoji: "🎯" };
   };
 
-  const getTotalGuesses = () => {
-    return players.reduce((total, player) => total + player.guesses.length, 0);
-  };
-
-  const getAverageScore = () => {
-    const totalScore = players.reduce((total, player) => total + player.score, 0);
-    return Math.round(totalScore / players.length);
-  };
+  const scoreGrade = getScoreGrade(player.score);
 
   return (
     <div className="max-w-4xl w-full">
       {/* Header */}
       <div className="text-center mb-8">
         <h1 className="text-5xl font-bold text-white mb-4">
-          🎉 Game Over! 🎉
+          🎉 Game Complete! 🎉
         </h1>
-        {isMultiplayer ? (
-          <div>
-            <p className="text-2xl text-yellow-400 mb-2">
-              Congratulations, {winner.name}!
-            </p>
-            <p className="text-lg text-gray-300">
-              You are the ultimate prompt guesser! 🏆
-            </p>
-          </div>
-        ) : (
-          <div>
-            <p className="text-2xl text-blue-400 mb-2">
-              Final Score: {winner.score} points!
-            </p>
-            <p className="text-lg text-gray-300">
-              {winner.score >= 400 ? "Amazing! You're a prompt master! 🧠" :
-               winner.score >= 300 ? "Great job! You know AI art well! 🎨" :
-               winner.score >= 200 ? "Good work! Keep practicing! 💪" :
-               "Not bad! Try again to improve your score! 🚀"}
-            </p>
-          </div>
-        )}
+        <div>
+          <p className="text-3xl mb-4">
+            <span className={`${scoreGrade.color} font-bold`}>
+              {scoreGrade.emoji} Grade: {scoreGrade.grade}
+            </span>
+          </p>
+          <p className="text-2xl text-blue-400 mb-2">
+            Final Score: {player.score} points!
+          </p>
+          <p className="text-lg text-gray-300">
+            {getPerformanceMessage(player.score)}
+          </p>
+        </div>
       </div>
 
       {/* Results */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        {/* Final Rankings */}
-        <div className="lg:col-span-2">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        {/* Player Stats */}
+        <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-6">
+          <h3 className="text-xl font-bold text-white mb-6 text-center">
+            📊 Your Performance
+          </h3>
+          
+          <div className="space-y-4">
+            <div className="flex items-center justify-between p-4 rounded-lg bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-400/30">
+              <div className="flex items-center space-x-4">
+                <div className="text-3xl">
+                  {scoreGrade.emoji}
+                </div>
+                <div>
+                  <div className="text-white font-bold text-lg">
+                    {player.name}
+                  </div>
+                  <div className="text-gray-300 text-sm">
+                    AI Prompt Guesser • {player.guesses.length} total guesses
+                  </div>
+                </div>
+              </div>
+              
+              <div className="text-right">
+                <div className="text-2xl font-bold text-white">
+                  {player.score}
+                </div>
+                <div className="text-gray-400 text-sm">
+                  points
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Game Statistics */}
+        <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-6">
+          <h3 className="text-lg font-bold text-white mb-4 text-center">
+            � Game Stats
+          </h3>
+          
+          <div className="space-y-3">
+            <div className="flex justify-between text-gray-300">
+              <span>Total Guesses:</span>
+              <span className="text-white font-semibold">{player.guesses.length}</span>
+            </div>
+            
+            <div className="flex justify-between text-gray-300">
+              <span>Final Score:</span>
+              <span className={`${scoreGrade.color} font-semibold`}>{player.score}</span>
+            </div>
+            
+            <div className="flex justify-between text-gray-300">
+              <span>Grade:</span>
+              <span className={`${scoreGrade.color} font-semibold`}>{scoreGrade.grade}</span>
+            </div>
+            
+            {player.guesses.length > 0 && (
+              <div className="flex justify-between text-gray-300">
+                <span>Avg per Guess:</span>
+                <span className="text-white font-semibold">
+                  {Math.round(player.score / player.guesses.length)} pts
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Best Guesses */}
+      {player.guesses.length > 0 && (
+        <div className="mb-8">
           <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-6">
-            <h3 className="text-xl font-bold text-white mb-6 text-center">
-              🏆 Final Rankings
+            <h3 className="text-lg font-bold text-white mb-4 text-center">
+              💡 Your Guesses
             </h3>
             
-            <div className="space-y-4">
-              {sortedPlayers.map((player, index) => (
-                <div
-                  key={player.id}
-                  className={`flex items-center justify-between p-4 rounded-lg ${
-                    index === 0 
-                      ? 'bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-400/30' 
-                      : index === 1
-                      ? 'bg-gradient-to-r from-gray-400/20 to-gray-500/20 border border-gray-400/30'
-                      : index === 2
-                      ? 'bg-gradient-to-r from-orange-600/20 to-orange-700/20 border border-orange-400/30'
-                      : 'bg-black/30 border border-gray-600/30'
-                  }`}
-                >
-                  <div className="flex items-center space-x-4">
-                    <div className="text-3xl">
-                      {getPositionEmoji(index)}
-                    </div>
-                    <div>
-                      <div className="text-white font-bold text-lg">
-                        {player.name}
-                      </div>
-                      <div className="text-gray-300 text-sm">
-                        {getPositionText(index)} • {player.guesses.length} guesses
-                      </div>
-                    </div>
+            <div className="space-y-2 max-h-40 overflow-y-auto">
+              {player.guesses.slice(-5).reverse().map((guess, index) => (
+                <div key={index} className="bg-black/30 rounded-lg p-3">
+                  <div className="text-blue-400 text-xs font-semibold">
+                    Guess #{player.guesses.length - index}:
                   </div>
-                  
-                  <div className="text-right">
-                    <div className="text-2xl font-bold text-white">
-                      {player.score}
-                    </div>
-                    <div className="text-gray-400 text-sm">
-                      points
-                    </div>
+                  <div className="text-white text-sm">
+                    "{guess.substring(0, 80)}
+                    {guess.length > 80 ? '...' : ''}"
                   </div>
                 </div>
               ))}
             </div>
           </div>
         </div>
-
-        {/* Game Statistics */}
-        <div className="space-y-6">
-          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-6">
-            <h3 className="text-lg font-bold text-white mb-4 text-center">
-              📊 Game Stats
-            </h3>
-            
-            <div className="space-y-3">
-              <div className="flex justify-between text-gray-300">
-                <span>Total Players:</span>
-                <span className="text-white font-semibold">{players.length}</span>
-              </div>
-              
-              <div className="flex justify-between text-gray-300">
-                <span>Total Guesses:</span>
-                <span className="text-white font-semibold">{getTotalGuesses()}</span>
-              </div>
-              
-              <div className="flex justify-between text-gray-300">
-                <span>Highest Score:</span>
-                <span className="text-yellow-400 font-semibold">{winner.score}</span>
-              </div>
-              
-              {isMultiplayer && (
-                <div className="flex justify-between text-gray-300">
-                  <span>Average Score:</span>
-                  <span className="text-white font-semibold">{getAverageScore()}</span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Best Guesses */}
-          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-6">
-            <h3 className="text-lg font-bold text-white mb-4 text-center">
-              💡 Most Creative Guesses
-            </h3>
-            
-            <div className="space-y-2">
-              {players
-                .flatMap(player => 
-                  player.guesses.map(guess => ({ player: player.name, guess }))
-                )
-                .slice(0, 3)
-                .map((item, index) => (
-                  <div key={index} className="bg-black/30 rounded-lg p-3">
-                    <div className="text-blue-400 text-xs font-semibold">
-                      {item.player}:
-                    </div>
-                    <div className="text-white text-sm">
-                      "{item.guess.substring(0, 60)}
-                      {item.guess.length > 60 ? '...' : ''}"
-                    </div>
-                  </div>
-                ))}
-            </div>
-          </div>
-        </div>
-      </div>
+      )}
 
       {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -196,13 +156,13 @@ export function GameResult({ players, onRestart }: GameResultProps) {
             if (navigator.share) {
               navigator.share({
                 title: "AI Playground: Guess the Prompt",
-                text: `I just scored ${winner.score} points in Guess the Prompt! Can you beat my score?`,
+                text: `I just scored ${player.score} points (Grade ${scoreGrade.grade}) in Guess the Prompt! Can you beat my score?`,
                 url: window.location.href,
               });
             } else {
               // Fallback for browsers without native sharing
               navigator.clipboard.writeText(
-                `I just scored ${winner.score} points in Guess the Prompt! Can you beat my score? ${window.location.href}`
+                `I just scored ${player.score} points (Grade ${scoreGrade.grade}) in Guess the Prompt! Can you beat my score? ${window.location.href}`
               );
               alert("Score copied to clipboard! Share it with your friends!");
             }

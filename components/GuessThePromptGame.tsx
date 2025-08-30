@@ -17,19 +17,16 @@ export interface GameImage {
 }
 
 export interface Player {
-  id: string;
   name: string;
   score: number;
   guesses: string[];
 }
 
 export interface GameState {
-  mode: "single" | "multiplayer" | null;
   currentImageIndex: number;
   round: number;
   maxRounds: number;
-  players: Player[];
-  currentPlayerIndex: number;
+  player: Player;
   gameStarted: boolean;
   gameEnded: boolean;
   showResult: boolean;
@@ -42,12 +39,14 @@ const MAX_ROUNDS = 5;
 
 export default function GuessThePromptGame() {
   const [gameState, setGameState] = useState<GameState>({
-    mode: null,
     currentImageIndex: 0,
     round: 1,
     maxRounds: MAX_ROUNDS,
-    players: [],
-    currentPlayerIndex: 0,
+    player: {
+      name: "",
+      score: 0,
+      guesses: []
+    },
     gameStarted: false,
     gameEnded: false,
     showResult: false,
@@ -75,18 +74,16 @@ export default function GuessThePromptGame() {
     };
   }, [gameState.isTimerActive, gameState.timeRemaining]);
 
-  const startGame = (mode: "single" | "multiplayer", playerNames: string[]) => {
-    const players: Player[] = playerNames.map((name, index) => ({
-      id: `player-${index}`,
-      name,
+  const startGame = (playerName: string) => {
+    const player: Player = {
+      name: playerName,
       score: 0,
       guesses: []
-    }));
+    };
 
     setGameState({
       ...gameState,
-      mode,
-      players,
+      player,
       gameStarted: true,
       currentImageIndex: Math.floor(Math.random() * gameImages.length),
       timeRemaining: ROUND_TIME,
@@ -96,24 +93,22 @@ export default function GuessThePromptGame() {
 
   const handleGuess = (guess: string) => {
     const currentImage = gameImages[gameState.currentImageIndex];
-    const currentPlayer = gameState.players[gameState.currentPlayerIndex];
     
     // Add guess to player's guesses
-    const updatedPlayers = [...gameState.players];
-    updatedPlayers[gameState.currentPlayerIndex] = {
-      ...currentPlayer,
-      guesses: [...currentPlayer.guesses, guess]
+    const updatedPlayer = {
+      ...gameState.player,
+      guesses: [...gameState.player.guesses, guess]
     };
 
     // Calculate score based on similarity to correct prompt
     const score = calculateScore(guess, currentImage.correctPrompt);
     if (score > 0) {
-      updatedPlayers[gameState.currentPlayerIndex].score += score;
+      updatedPlayer.score += score;
     }
 
     setGameState(prev => ({
       ...prev,
-      players: updatedPlayers,
+      player: updatedPlayer,
       showResult: true,
       isTimerActive: false
     }));
@@ -164,10 +159,9 @@ export default function GuessThePromptGame() {
   };
 
   const nextTurn = () => {
-    const isLastPlayer = gameState.currentPlayerIndex === gameState.players.length - 1;
     const isLastRound = gameState.round === gameState.maxRounds;
 
-    if (isLastPlayer && isLastRound) {
+    if (isLastRound) {
       // Game over
       setGameState(prev => ({
         ...prev,
@@ -175,22 +169,11 @@ export default function GuessThePromptGame() {
         showResult: false,
         isTimerActive: false
       }));
-    } else if (isLastPlayer) {
+    } else {
       // Next round
       setGameState(prev => ({
         ...prev,
         round: prev.round + 1,
-        currentPlayerIndex: 0,
-        currentImageIndex: Math.floor(Math.random() * gameImages.length),
-        showResult: false,
-        timeRemaining: ROUND_TIME,
-        isTimerActive: true
-      }));
-    } else {
-      // Next player
-      setGameState(prev => ({
-        ...prev,
-        currentPlayerIndex: prev.currentPlayerIndex + 1,
         currentImageIndex: Math.floor(Math.random() * gameImages.length),
         showResult: false,
         timeRemaining: ROUND_TIME,
@@ -201,12 +184,14 @@ export default function GuessThePromptGame() {
 
   const resetGame = () => {
     setGameState({
-      mode: null,
       currentImageIndex: 0,
       round: 1,
       maxRounds: MAX_ROUNDS,
-      players: [],
-      currentPlayerIndex: 0,
+      player: {
+        name: "",
+        score: 0,
+        guesses: []
+      },
       gameStarted: false,
       gameEnded: false,
       showResult: false,
@@ -216,7 +201,6 @@ export default function GuessThePromptGame() {
   };
 
   const currentImage = gameImages[gameState.currentImageIndex];
-  const currentPlayer = gameState.players[gameState.currentPlayerIndex];
 
   if (!gameState.gameStarted) {
     return (
@@ -228,14 +212,14 @@ export default function GuessThePromptGame() {
           </div>
           
           <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
-            Outsmart the model.{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
-              Modern dark edition
+            Reverse engineer AI.{" "}
+            <span className="text-cyan-500">
+              Guess the prompt
             </span>
           </h1>
-          
-          <p className="text-lg text-gray-300 max-w-3xl mb-8 leading-relaxed">
-            We show you stunning AI outputs, your job is to reverse-engineer the exact prompt. Clean, fast, and addictive.
+
+          <p className="text-lg text-gray-300 max-w-3xl mb-8 leading-relaxed text-center">
+            We show you stunning AI-generated images, your job is to reverse-engineer the exact prompt that created them. Test your creativity and AI knowledge!
           </p>
 
           {/* Example Challenge */}
@@ -261,7 +245,7 @@ export default function GuessThePromptGame() {
   if (gameState.gameEnded) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-8">
-        <GameResult players={gameState.players} onRestart={resetGame} />
+        <GameResult player={gameState.player} onRestart={resetGame} />
       </div>
     );
   }
@@ -279,8 +263,8 @@ export default function GuessThePromptGame() {
         
         <div className="flex items-center space-x-4">
           <div className="text-white text-right">
-            <p className="text-sm text-gray-300">Current Player</p>
-            <p className="font-semibold">{currentPlayer?.name}</p>
+            <p className="text-sm text-gray-300">Player</p>
+            <p className="font-semibold">{gameState.player.name}</p>
           </div>
           
           <div className="text-white text-center">
@@ -309,8 +293,9 @@ export default function GuessThePromptGame() {
           {/* Score Board */}
           <div className="mb-6">
             <ScoreBoard
-              players={gameState.players}
-              currentPlayerIndex={gameState.currentPlayerIndex}
+              player={gameState.player}
+              round={gameState.round}
+              maxRounds={gameState.maxRounds}
             />
           </div>
 
@@ -320,20 +305,20 @@ export default function GuessThePromptGame() {
               <div className="bg-black/50 backdrop-blur-sm rounded-lg p-6 text-center">
                 <h3 className="text-xl font-bold text-white mb-4">Result</h3>
                 <p className="text-gray-300 mb-2">
-                  Last guess: "{currentPlayer?.guesses[currentPlayer.guesses.length - 1] || 'No guess'}"
+                  Last guess: "{gameState.player.guesses[gameState.player.guesses.length - 1] || 'No guess'}"
                 </p>
                 <p className="text-blue-400 text-lg font-semibold">
                   {gameState.timeRemaining === 0 ? "Time's up!" : "Points earned!"}
                 </p>
                 <p className="text-gray-400 text-sm mt-4">
-                  Next {gameState.currentPlayerIndex === gameState.players.length - 1 ? 'round' : 'player'} starting soon...
+                  Next round starting soon...
                 </p>
               </div>
             ) : (
               <GuessInput
                 onSubmitGuess={handleGuess}
                 disabled={!gameState.isTimerActive}
-                currentPlayer={currentPlayer?.name || ''}
+                currentPlayer={gameState.player.name}
               />
             )}
           </div>
