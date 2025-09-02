@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import google.generativeai as genai
 from PIL import Image
 import io
@@ -9,6 +10,13 @@ from dotenv import load_dotenv
 # 1. Setup Flask App
 # ==============================
 app = Flask(__name__)
+
+# Enable CORS for all routes and origins
+# For development: Allow all origins
+CORS(app)
+
+# For production: Restrict to specific domains
+# CORS(app, origins=["http://localhost:3000", "https://your-frontend-domain.com"])
 
 # ==============================
 # 2. Configure Gemini API
