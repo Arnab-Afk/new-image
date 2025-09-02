@@ -45,8 +45,8 @@ export function ScoreBoard({ player, round, maxRounds }: ScoreBoardProps) {
               
               {player.guesses.length > 0 && (
                 <div className="text-gray-400 text-xs mt-1">
-                  Last guess: "{player.guesses[player.guesses.length - 1].substring(0, 25)}
-                  {player.guesses[player.guesses.length - 1].length > 25 ? '...' : ''}"
+                  Last guess: &quot;{player.guesses[player.guesses.length - 1].substring(0, 25)}
+                  {player.guesses[player.guesses.length - 1].length > 25 ? '...' : ''}&quot;
                 </div>
               )}
             </div>
@@ -98,6 +98,13 @@ export function ScoreBoard({ player, round, maxRounds }: ScoreBoardProps) {
               </span>
             </div>
           )}
+          
+          <div className="flex justify-between text-sm text-gray-300">
+            <span>AI Evaluations:</span>
+            <span className="text-yellow-400 font-semibold animate-pulse">
+              Processing...
+            </span>
+          </div>
         </div>
       </div>
     </div>

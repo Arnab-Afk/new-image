@@ -117,6 +117,54 @@ export function GameResult({ player, onRestart }: GameResultProps) {
         </div>
       </div>
 
+      {/* Detailed Round Breakdown */}
+      {player.detailedScores && player.detailedScores.length > 0 && (
+        <div className="mb-8">
+          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-6">
+            <h3 className="text-lg font-bold text-white mb-4 text-center">
+              📊 Round by Round Breakdown
+            </h3>
+            
+            <div className="space-y-4">
+              {player.detailedScores.map((roundData, index) => (
+                <div key={index} className="bg-black/30 rounded-lg p-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-blue-400 font-semibold">
+                      Round {roundData.round}
+                    </span>
+                    <span className="text-green-400 font-bold">
+                      {roundData.totalScore}/100 pts
+                    </span>
+                  </div>
+                  
+                  <div className="text-gray-300 text-sm mb-2">
+                    Prompt: &quot;{roundData.prompt.substring(0, 60)}
+                    {roundData.prompt.length > 60 ? '...' : ''}&quot;
+                  </div>
+                  
+                  {roundData.breakdown && roundData.breakdown.length > 0 && (
+                    <div className="grid grid-cols-5 gap-2 mt-2">
+                      {roundData.breakdown.map((result, imgIndex) => (
+                        <div key={result.imageId} className="text-center">
+                          <div className="text-xs text-gray-400">
+                            Img {imgIndex + 1}
+                          </div>
+                          <div className={`text-sm font-bold ${
+                            result.success ? 'text-white' : 'text-red-400'
+                          }`}>
+                            {result.success ? `${parseInt(result.score) || 0}` : 'Error'}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Best Guesses */}
       {player.guesses.length > 0 && (
         <div className="mb-8">
@@ -132,8 +180,8 @@ export function GameResult({ player, onRestart }: GameResultProps) {
                     Guess #{player.guesses.length - index}:
                   </div>
                   <div className="text-white text-sm">
-                    "{guess.substring(0, 80)}
-                    {guess.length > 80 ? '...' : ''}"
+                    &quot;{guess.substring(0, 80)}
+                    {guess.length > 80 ? '...' : ''}&quot;
                   </div>
                 </div>
               ))}
