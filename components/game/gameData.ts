@@ -52,9 +52,7 @@ export const categories = [
 // API configuration with fallback
 export const API_CONFIG = {
   // Try local first, fallback to deployed
-  BASE_URL: process.env.NODE_ENV === 'development' 
-    ? "http://localhost:5001" 
-    : "https://new-image-woxm.onrender.com",
+  BASE_URL:"https://new-image-woxm.onrender.com",
   EVALUATE_ENDPOINT: "/evaluate",
   HEALTH_ENDPOINT: "/health"
 };
