@@ -26,10 +26,12 @@ export interface Player {
   name: string;
   score: number;
   guesses: string[];
+  guessTimes: number[]; // Time taken for each guess in seconds
   detailedScores: {
     round: number;
     prompt: string;
     totalScore: number;
+    timeTaken: number; // Time taken for this round in seconds
     breakdown: ScoreResponse[];
   }[];
 }
@@ -46,6 +48,7 @@ export interface GameState {
   isTimerActive: boolean;
   pendingEvaluations: PendingEvaluation[];
   isCalculatingFinalScore: boolean;
+  roundStartTime: number; // Timestamp when the current round started
 }
 
 const ROUND_TIME = 60; // 1 minute per round (faster flow)
@@ -60,6 +63,7 @@ export default function GuessThePromptGame() {
       name: "",
       score: 0,
       guesses: [],
+      guessTimes: [],
       detailedScores: []
     },
     gameStarted: false,
@@ -69,6 +73,7 @@ export default function GuessThePromptGame() {
     isTimerActive: false,
     pendingEvaluations: [],
     isCalculatingFinalScore: false,
+    roundStartTime: Date.now(),
   });
 
   // Timer effect and time up handler
@@ -83,23 +88,28 @@ export default function GuessThePromptGame() {
         }));
       }, 1000);
     } else if (gameState.timeRemaining === 0 && gameState.isTimerActive) {
-      // Handle time up inline
+      // Handle time up inline - add empty guess with timeout timing
+      const currentTime = Date.now();
+      const timeTaken = Math.round((currentTime - gameState.roundStartTime) / 1000);
+      
       setGameState(prev => ({
         ...prev,
+        player: {
+          ...prev.player,
+          guesses: [...prev.player.guesses, ""], // Empty guess for timeout
+          guessTimes: [...prev.player.guessTimes, timeTaken]
+        },
         showResult: true,
         isTimerActive: false
       }));
+
+      console.log(`⏰ Round ${gameState.round} timed out after ${timeTaken} seconds`);
 
       setTimeout(() => {
         const isLastRound = gameState.round === gameState.maxRounds;
 
         if (isLastRound) {
-          setGameState(prev => ({
-            ...prev,
-            gameEnded: true,
-            showResult: false,
-            isTimerActive: false
-          }));
+          calculateFinalScores();
         } else {
           setGameState(prev => ({
             ...prev,
@@ -107,7 +117,8 @@ export default function GuessThePromptGame() {
             currentImageIndex: prev.round,
             showResult: false,
             timeRemaining: ROUND_TIME,
-            isTimerActive: true
+            isTimerActive: true,
+            roundStartTime: Date.now(), // Reset timer for new round
           }));
         }
       }, 2000);
@@ -116,13 +127,14 @@ export default function GuessThePromptGame() {
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [gameState.isTimerActive, gameState.timeRemaining, gameState.round, gameState.maxRounds]);
+  }, [gameState.isTimerActive, gameState.timeRemaining, gameState.round, gameState.maxRounds, gameState.roundStartTime]);
 
   const startGame = (playerName: string) => {
     const player: Player = {
       name: playerName,
       score: 0,
       guesses: [],
+      guessTimes: [],
       detailedScores: []
     };
 
@@ -133,11 +145,14 @@ export default function GuessThePromptGame() {
       currentImageIndex: 0, // Start with first image
       timeRemaining: ROUND_TIME,
       isTimerActive: true,
+      roundStartTime: Date.now(), // Track when this round started
     });
   };
 
   const handleGuess = (guess: string) => {
     const currentImage = gameImages[gameState.currentImageIndex];
+    const currentTime = Date.now();
+    const timeTaken = Math.round((currentTime - gameState.roundStartTime) / 1000); // Time in seconds
     
     // Start evaluation for current image (non-blocking)
     const evaluation = startImageEvaluation(guess, currentImage.url, currentImage.id);
@@ -145,11 +160,14 @@ export default function GuessThePromptGame() {
     // Add the pending evaluation to our list
     const updatedPendingEvaluations = [...gameState.pendingEvaluations, evaluation];
     
-    // Update player data and add guess
+    // Update player data and add guess with timing
     const updatedPlayer = {
       ...gameState.player,
-      guesses: [...gameState.player.guesses, guess]
+      guesses: [...gameState.player.guesses, guess],
+      guessTimes: [...gameState.player.guessTimes, timeTaken]
     };
+
+    console.log(`⏱️ Round ${gameState.round} guess submitted in ${timeTaken} seconds: "${guess}"`);
 
     setGameState(prev => ({
       ...prev,
@@ -194,12 +212,15 @@ export default function GuessThePromptGame() {
               ? Math.round(roundResults.reduce((sum, r) => sum + (parseInt(r.score) || 0), 0) / roundResults.length)
               : 0;
 
-            console.log(`📈 Round ${index + 1} (${guess}): ${roundResults.length} results, score: ${totalScore}`);
+            const timeTaken = prev.player.guessTimes[index] || 0;
+
+            console.log(`📈 Round ${index + 1} (${guess}): ${roundResults.length} results, score: ${totalScore}, time: ${timeTaken}s`);
 
             return {
               round: index + 1,
               prompt: guess,
               totalScore,
+              timeTaken,
               breakdown: roundResults
             };
           });
@@ -262,7 +283,8 @@ export default function GuessThePromptGame() {
         currentImageIndex: prev.round, // Use round number as index (0-4)
         showResult: false,
         timeRemaining: ROUND_TIME,
-        isTimerActive: true
+        isTimerActive: true,
+        roundStartTime: Date.now(), // Reset timer for new round
       }));
     }
   };
@@ -276,6 +298,7 @@ export default function GuessThePromptGame() {
         name: "",
         score: 0,
         guesses: [],
+        guessTimes: [],
         detailedScores: []
       },
       gameStarted: false,
@@ -285,6 +308,7 @@ export default function GuessThePromptGame() {
       isTimerActive: false,
       pendingEvaluations: [],
       isCalculatingFinalScore: false,
+      roundStartTime: Date.now(),
     });
   };
 
