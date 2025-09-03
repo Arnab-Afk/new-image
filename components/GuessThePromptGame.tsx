@@ -6,6 +6,7 @@ import { ImageDisplay } from "./game/ImageDisplay";
 import { GuessInput } from "./game/GuessInput";
 import { ScoreBoard } from "./game/ScoreBoard";
 import { GameResult } from "./game/GameResult";
+import { Leaderboard } from "./game/Leaderboard";
 import { gameImages } from "./game/gameData";
 import { 
   startImageEvaluation, 
@@ -55,6 +56,7 @@ const ROUND_TIME = 60; // 1 minute per round (faster flow)
 const MAX_ROUNDS = 5; // One round for each image
 
 export default function GuessThePromptGame() {
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [gameState, setGameState] = useState<GameState>({
     currentImageIndex: 0,
     round: 1,
@@ -400,6 +402,13 @@ export default function GuessThePromptGame() {
         </div>
         
         <div className="flex items-center space-x-4">
+          <button
+            onClick={() => setShowLeaderboard(true)}
+            className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors font-semibold text-sm"
+          >
+            🏆 Leaderboard
+          </button>
+          
           <div className="text-white text-right">
             <p className="text-sm text-gray-300">Player</p>
             <p className="font-semibold">{gameState.player.name}</p>
@@ -501,6 +510,12 @@ export default function GuessThePromptGame() {
           </div>
         </div>
       </div>
+
+      {/* Leaderboard Modal */}
+      <Leaderboard 
+        isVisible={showLeaderboard} 
+        onClose={() => setShowLeaderboard(false)} 
+      />
     </div>
   );
 }

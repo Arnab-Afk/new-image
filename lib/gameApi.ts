@@ -257,3 +257,61 @@ export function getScoreBreakdown(scoreResponses: ScoreResponse[]) {
     failed: scoreResponses.filter(r => !r.success).length,
   };
 }
+
+// Leaderboard interfaces
+export interface LeaderboardEntry {
+  id: number;
+  name: string;
+  score: number;
+  total_time: number;
+  average_time: number;
+  fastest_guess: number;
+  submitted_at: string;
+  rank: number;
+}
+
+export interface LeaderboardResponse {
+  leaderboard: LeaderboardEntry[];
+  total_entries: number;
+  sorted_by: string;
+  order: string;
+}
+
+export interface GameData {
+  playerName: string;
+  correctGuesses: number;
+  totalTime: number;
+  guessTimes: number[];
+}
+
+// Submit score to leaderboard
+export async function submitScore(gameData: GameData): Promise<{ success: boolean; message?: string; error?: string }> {
+  try {
+    const response = await fetch('https://dz-game.ishika-b.workers.dev/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: gameData.playerName,
+        score: gameData.correctGuesses,
+        total_time: gameData.totalTime,
+        average_time: gameData.totalTime / 5,
+        fastest_guess: Math.min(...gameData.guessTimes)
+      })
+    });
+    return response.json();
+  } catch (error) {
+    console.error('Error submitting score:', error);
+    throw error;
+  }
+}
+
+// Get leaderboard data
+export async function getLeaderboard(): Promise<LeaderboardResponse> {
+  try {
+    const response = await fetch('https://dz-game.ishika-b.workers.dev/leaderboard?limit=10');
+    return response.json();
+  } catch (error) {
+    console.error('Error fetching leaderboard:', error);
+    throw error;
+  }
+}
