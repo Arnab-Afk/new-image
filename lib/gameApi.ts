@@ -69,8 +69,11 @@ export async function evaluateImagePrompt(
 
     // Make API call with timeout and better error handling
     const controller = new AbortController();
+    let isTimedOut = false;
+    
     const timeoutId = setTimeout(() => {
       console.log(`⏰ Timeout reached for image ${imageId} evaluation`);
+      isTimedOut = true;
       controller.abort();
     }, 45000); // 45 second timeout
 
@@ -102,22 +105,34 @@ export async function evaluateImagePrompt(
         imageId,
         success: true,
       };
-    } finally {
+    } catch (fetchError) {
       clearTimeout(timeoutId);
+      
+      // Handle AbortError specifically (timeout case)
+      if (fetchError instanceof Error && (fetchError.name === 'AbortError' || isTimedOut)) {
+        console.log(`⏰ Image ${imageId} evaluation timed out after 45 seconds`);
+        throw new Error('Request timeout');
+      }
+      
+      // Re-throw other errors to be handled by outer catch
+      throw fetchError;
     }
   } catch (error) {
-    console.error(`❌ Error evaluating image ${imageId}:`, error);
-    
     // Provide more specific error messages but ALWAYS return a response
     let errorMessage = 'Unknown error';
     if (error instanceof Error) {
-      if (error.name === 'AbortError') {
+      if (error.name === 'AbortError' || error.message === 'Request timeout') {
         errorMessage = 'Request timeout';
+        console.log(`⏰ Image ${imageId} evaluation timed out (handled gracefully)`);
       } else if (error.message.includes('fetch')) {
         errorMessage = 'Network connection failed';
+        console.error(`🌐 Network error for image ${imageId}:`, error.message);
       } else {
         errorMessage = error.message;
+        console.error(`❌ Error evaluating image ${imageId}:`, error.message);
       }
+    } else {
+      console.error(`❌ Unknown error evaluating image ${imageId}:`, error);
     }
     
     // CRITICAL: Always return a valid ScoreResponse, never throw
