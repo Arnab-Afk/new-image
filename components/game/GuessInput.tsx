@@ -44,7 +44,7 @@ export function GuessInput({ onSubmitGuess, disabled, currentPlayer }: GuessInpu
     <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-6">
       <div className="text-center mb-4">
         <h3 className="text-xl font-bold text-white mb-2">
-          {currentPlayer}'s Turn
+          {currentPlayer}&apos;s Turn
         </h3>
         <p className="text-gray-300 text-sm">
           What prompt do you think created this image?
@@ -95,33 +95,33 @@ export function GuessInput({ onSubmitGuess, disabled, currentPlayer }: GuessInpu
       {disabled && !isSubmitting && (
         <div className="text-center mt-4">
           <p className="text-gray-400 text-sm">
-            ⏰ Time's up! Waiting for next turn...
+            ⏰ Time&apos;s up! Waiting for next turn...
           </p>
         </div>
       )}
 
       <div className="mt-6 text-center">
-        <h4 className="text-white font-semibold mb-3">💡 Tips for Better Guesses:</h4>
-        <div className="grid grid-cols-2 gap-3 text-sm text-gray-300">
+        <h4 className="text-white font-semibold mb-3">💡 Game Rules:</h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-gray-300">
           <div className="bg-black/30 rounded-lg p-3">
-            <span className="text-blue-400">🎨 Style:</span>
+            <span className="text-blue-400">� Objective:</span>
             <br />
-            Realistic, cartoon, abstract?
+            Your prompt is tested against ALL 5 images
           </div>
           <div className="bg-black/30 rounded-lg p-3">
-            <span className="text-green-400">🏞️ Setting:</span>
+            <span className="text-green-400">� Scoring:</span>
             <br />
-            Where does this take place?
+            Higher scores for better descriptions
           </div>
           <div className="bg-black/30 rounded-lg p-3">
-            <span className="text-yellow-400">🎭 Mood:</span>
+            <span className="text-yellow-400">⚡ Strategy:</span>
             <br />
-            Happy, mysterious, dramatic?
+            Be specific but versatile
           </div>
           <div className="bg-black/30 rounded-lg p-3">
-            <span className="text-purple-400">📝 Details:</span>
+            <span className="text-purple-400">🤖 AI:</span>
             <br />
-            Colors, objects, actions?
+            Real AI evaluates your creativity
           </div>
         </div>
       </div>

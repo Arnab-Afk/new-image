@@ -4,6 +4,7 @@ import Hyperspeed from "@/components/Hyperspeed/Hyperspeed";
 import { hyperspeedPresets } from "@/components/Hyperspeed/HyperSpeedPresets";
 import GuessThePromptGame from "@/components/GuessThePromptGame";
 import { Header } from "@/components/game/Header";
+import { ApiTester } from "@/components/debug/ApiTester";
 
 export default function Home() {
   return (
@@ -18,6 +19,9 @@ export default function Home() {
         <Header className="absolute top-0 left-0 right-0 z-20" />
         <GuessThePromptGame />
       </div>
+      
+      {/* Debug Panel - Remove in production */}
+      {process.env.NODE_ENV === 'development' && <ApiTester />}
     </div>
   );
 }

@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import google.generativeai as genai
 from PIL import Image
 import io
@@ -9,6 +10,15 @@ from dotenv import load_dotenv
 # 1. Setup Flask App
 # ==============================
 app = Flask(__name__)
+
+# Enable CORS for all domains and routes
+CORS(app, resources={
+    r"/*": {
+        "origins": "*",
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"]
+    }
+})
 
 # ==============================
 # 2. Configure Gemini API
@@ -21,8 +31,7 @@ genai.configure(api_key=API_KEY)
 
 # System instruction
 system_instruction = """
-You are an AI evaluator. Your task is to analyze how well a given text prompt
-describes a provided image. 
+You are an AI evaluator. Your task is to analyze how well a given prompt is to generate the given image. 
 Return only a numeric score between 0 and 100, where:
 0 = not related at all, 100 = perfectly accurate description.
 """
@@ -34,8 +43,14 @@ model = genai.GenerativeModel(
 )
 
 # ==============================
-# 3. API Route
+# 3. API Routes
 # ==============================
+
+@app.route("/health", methods=["GET"])
+def health_check():
+    """Health check endpoint"""
+    return jsonify({"status": "healthy", "message": "Backend is running"})
+
 @app.route("/evaluate", methods=["POST"])
 def evaluate_prompt():
     try:

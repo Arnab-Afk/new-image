@@ -105,6 +105,31 @@ export function GameResult({ player, onRestart }: GameResultProps) {
               <span className={`${scoreGrade.color} font-semibold`}>{scoreGrade.grade}</span>
             </div>
             
+            {player.guessTimes && player.guessTimes.length > 0 && (
+              <>
+                <div className="flex justify-between text-gray-300">
+                  <span>Total Time:</span>
+                  <span className="text-white font-semibold">
+                    {player.guessTimes.reduce((sum, time) => sum + time, 0)}s
+                  </span>
+                </div>
+                
+                <div className="flex justify-between text-gray-300">
+                  <span>Avg Time/Round:</span>
+                  <span className="text-white font-semibold">
+                    {Math.round(player.guessTimes.reduce((sum, time) => sum + time, 0) / player.guessTimes.length)}s
+                  </span>
+                </div>
+                
+                <div className="flex justify-between text-gray-300">
+                  <span>Fastest Round:</span>
+                  <span className="text-green-400 font-semibold">
+                    {Math.min(...player.guessTimes)}s
+                  </span>
+                </div>
+              </>
+            )}
+            
             {player.guesses.length > 0 && (
               <div className="flex justify-between text-gray-300">
                 <span>Avg per Guess:</span>
@@ -117,6 +142,61 @@ export function GameResult({ player, onRestart }: GameResultProps) {
         </div>
       </div>
 
+      {/* Detailed Round Breakdown */}
+      {player.detailedScores && player.detailedScores.length > 0 && (
+        <div className="mb-8">
+          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-6">
+            <h3 className="text-lg font-bold text-white mb-4 text-center">
+              📊 Round by Round Breakdown
+            </h3>
+            
+            <div className="space-y-4">
+              {player.detailedScores.map((roundData, index) => (
+                <div key={index} className="bg-black/30 rounded-lg p-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-blue-400 font-semibold">
+                      Round {roundData.round}
+                    </span>
+                    <div className="flex items-center space-x-4">
+                      {roundData.timeTaken !== undefined && (
+                        <span className="text-yellow-400 font-medium">
+                          ⏱️ {roundData.timeTaken}s
+                        </span>
+                      )}
+                      <span className="text-green-400 font-bold">
+                        {roundData.totalScore}/100 pts
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="text-gray-300 text-sm mb-2">
+                    Prompt: &quot;{roundData.prompt.substring(0, 60)}
+                    {roundData.prompt.length > 60 ? '...' : ''}&quot;
+                  </div>
+                  
+                  {roundData.breakdown && roundData.breakdown.length > 0 && (
+                    <div className="grid grid-cols-5 gap-2 mt-2">
+                      {roundData.breakdown.map((result, imgIndex) => (
+                        <div key={result.imageId} className="text-center">
+                          <div className="text-xs text-gray-400">
+                            Img {imgIndex + 1}
+                          </div>
+                          <div className={`text-sm font-bold ${
+                            result.success ? 'text-white' : 'text-red-400'
+                          }`}>
+                            {result.success ? `${parseInt(result.score) || 0}` : 'Error'}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Best Guesses */}
       {player.guesses.length > 0 && (
         <div className="mb-8">
@@ -126,17 +206,29 @@ export function GameResult({ player, onRestart }: GameResultProps) {
             </h3>
             
             <div className="space-y-2 max-h-40 overflow-y-auto">
-              {player.guesses.slice(-5).reverse().map((guess, index) => (
-                <div key={index} className="bg-black/30 rounded-lg p-3">
-                  <div className="text-blue-400 text-xs font-semibold">
-                    Guess #{player.guesses.length - index}:
+              {player.guesses.slice(-5).reverse().map((guess, index) => {
+                const guessIndex = player.guesses.length - 1 - index;
+                const timeTaken = player.guessTimes && player.guessTimes[guessIndex];
+                
+                return (
+                  <div key={index} className="bg-black/30 rounded-lg p-3">
+                    <div className="flex justify-between items-center mb-1">
+                      <div className="text-blue-400 text-xs font-semibold">
+                        Guess #{guessIndex + 1}:
+                      </div>
+                      {timeTaken !== undefined && (
+                        <div className="text-yellow-400 text-xs">
+                          ⏱️ {timeTaken}s
+                        </div>
+                      )}
+                    </div>
+                    <div className="text-white text-sm">
+                      &quot;{guess ? guess.substring(0, 80) : '(timed out)'}
+                      {guess && guess.length > 80 ? '...' : ''}&quot;
+                    </div>
                   </div>
-                  <div className="text-white text-sm">
-                    "{guess.substring(0, 80)}
-                    {guess.length > 80 ? '...' : ''}"
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
